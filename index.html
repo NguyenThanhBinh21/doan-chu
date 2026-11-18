@@ -29,7 +29,7 @@ button{font:inherit;cursor:pointer}.wrap{max-width:760px;margin:auto;padding:24p
  <div class="brand"><div class="logo">Đ</div><div><h1>ĐOÁN CHỮ</h1><p>Wordle phiên bản tiếng Việt</p></div></div>
  <button class="iconbtn" id="helpBtn" aria-label="Hướng dẫn">? Hướng dẫn</button>
 </header>
-<section class="intro"><h2>Đoán cụm từ bí mật</h2><p>Tìm cụm từ gồm hai từ trong tối đa 6 lần thử.</p></section>
+<section class="intro"><h2>Đoán từ hoặc cụm từ bí mật</h2><p>Tìm từ đơn hoặc cụm từ gồm hai từ trong tối đa 6 lần thử.</p></section>
 <nav class="modes" aria-label="Chọn độ dài">
  <button class="mode active" data-length="4">4 chữ</button>
  <button class="mode" data-length="5">5 chữ</button>
@@ -54,32 +54,36 @@ button{font:inherit;cursor:pointer}.wrap{max-width:760px;margin:auto;padding:24p
   <span><i class="swatch" style="background:var(--yellow)"></i> Đúng chữ, sai vị trí</span>
   <span><i class="swatch" style="background:var(--gray)"></i> Không có trong đáp án</span>
  </div>
- <p>Mỗi ô là một chữ cái. Khoảng cách giữa hai từ được giữ cố định theo đáp án — bạn không cần gõ dấu cách hay dấu tiếng Việt.</p>
+ <p>Mỗi ô là một chữ cái. Nếu đáp án gồm hai từ, khoảng cách giữa hai từ được giữ cố định. Nếu đáp án là một từ thì không có khoảng cách. Bạn không cần gõ dấu cách hay dấu tiếng Việt.</p>
 </section>
 <div class="footer">ĐOÁN CHỮ · THỬ THÁCH TỪ VỰNG TIẾNG VIỆT</div>
 </main>
 <div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
  <div class="modal-card"><h3 id="modalTitle">Cách chơi</h3>
- <ol><li>Chọn chế độ 4, 5 hoặc 6 chữ.</li><li>Đoán cụm từ tiếng Việt gồm đúng hai từ trong 6 lượt.</li><li>Nhập chữ cái không dấu; không cần nhập dấu cách.</li><li>Màu xanh là đúng vị trí, vàng là có chữ nhưng sai vị trí, xám là không có.</li></ol>
+ <ol><li>Chọn chế độ 4, 5 hoặc 6 chữ.</li><li>Đoán một từ hoặc cụm từ tiếng Việt gồm tối đa hai từ trong 6 lượt.</li><li>Nhập chữ cái không dấu; không cần nhập dấu cách.</li><li>Màu xanh là đúng vị trí, vàng là có chữ nhưng sai vị trí, xám là không có.</li></ol>
  <button class="primary" id="closeHelp">Đã hiểu</button></div>
 </div>
 <script>
 (()=>{
 const BANK={
- 4:['cà phê','bò né','xe ôm','ba lô','ca sĩ','cô bé','da gà','cá rô','mì ý','ô mai'],
- 5:['trà sữa','xe máy','hoa quả','sân ga','cá mập','bút chì','nhà ga','cà ri','áo dài','cá khô'],
- 6:['bánh mì','đồng hồ','cây bút','tủ lạnh','sách vở','bàn ghế','quả cam','nước đá','đèn pin','cá cảnh']
+ 4:['nghĩ','chơi','sách','xanh','buồn','thơm','cười','khóc','tình','nhạc','viết','khỏe','chạy','nghỉ','bánh','đúng','xe ôm','bò né','ba lô','ca sĩ','cá rô','đi bộ','đồ ăn','đi xe','đá me','xe ga','ba mẹ','mẹ ơi'],
+ 5:['người','thích','tiếng','thành','nhanh','tương','thắng','trắng','không','nhiều','bạn bè','cá mập','nhà ga','áo len','cá khô','mì cay','xe đạp','cà phê','cơm gà','đi học','đi làm','cây đa','sữa bò','cá hồi'],
+ 6:['trường','thương','chuyện','chuyên','thuyền','nghiệp','thưởng','bình an','bóng đá','bàn tay','hoa quả','mưa rào','cá cảnh','đèn pin','quả táo','cà chua','bàn ghế','bóng rổ','cầu thủ','đi chơi','ăn uống','công ty','mẹ hiền','cô giáo','thầy cô','tủ sách','xe buýt','đá bóng','đồ chơi','nhà cửa','bạn học','sân nhà']
 };
 const $=id=>document.getElementById(id);
 const strip=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
 const KEYROWS=['qwertyuiop','asdfghjkl','zxcvbnm'];
-let length=4,answer='',target='',split=0,guesses=[],current='',finished=false,keyColors={},streak=0;
+let length=4,answer='',target='',split=0,guesses=[],current='',finished=false,keyColors={},streak=0,lastAnswers={4:'',5:'',6:''};
 const board=$('board');
 function chooseAnswer(){
  const candidates=BANK[length].filter(w=>strip(w).replace(/\s/g,'').length===length);
- answer=candidates[Math.floor(Math.random()*candidates.length)];
+ const fresh=candidates.filter(w=>w!==lastAnswers[length]);
+ const pool=fresh.length?fresh:candidates;
+ answer=pool[Math.floor(Math.random()*pool.length)];
+ lastAnswers[length]=answer;
  const words=answer.split(' ');
- target=strip(answer).replace(/\s/g,'');split=strip(words[0]).length;
+ target=strip(answer).replace(/\s/g,'');
+ split=words.length===2?strip(words[0]).length:-1;
 }
 function newGame(){
  guesses=[];current='';finished=false;keyColors={};chooseAnswer();
@@ -94,7 +98,7 @@ function draw(){
  for(let r=0;r<6;r++){
   const row=document.createElement('div');row.className='guess-row';
   for(let c=0;c<length;c++){
-   if(c===split){const gap=document.createElement('span');gap.className='word-gap';row.append(gap);}
+   if(split>0 && c===split){const gap=document.createElement('span');gap.className='word-gap';row.append(gap);}
    const tile=document.createElement('div');tile.className='tile';
    let ch='',color='';
    if(guesses[r]){ch=guesses[r].chars[c];color=guesses[r].colors[c];}
@@ -161,7 +165,7 @@ function say(text,kind){$('message').textContent=text;$('message').className='me
 function finish(won){
  finished=true;
  $('resultTitle').textContent=won?'🎉 Chính xác! Bạn đã chiến thắng.':'Hết lượt mất rồi!';
- $('resultText').textContent=won?'Bạn tìm ra đáp án trong '+guesses.length+'/6 lượt. Đáp án: '+answer+'.':'Đáp án đúng là: '+answer+'. Thử lại một ván nhé!';
+ $('resultText').textContent=won?'Bạn tìm ra đáp án trong '+guesses.length+'/6 lượt. Đáp án: '+answer+'.':'Bạn đã sử dụng hết 6/6 lượt. Đáp án đúng là: '+answer+'. Thử lại một ván nhé!';
  $('result').classList.add('show');
  say(won?'Tuyệt vời! Bạn đã giải được câu đố.':'Đừng nản chí, thử lại nhé!','success');
 }

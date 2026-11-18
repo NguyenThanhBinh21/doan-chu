@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>Đoán Chữ — Wordle Tiếng Việt</title>
+<style>
+:root{--bg:#10151f;--panel:#192231;--panel2:#202c3d;--text:#f4f6fb;--muted:#9aa8ba;--line:#344256;--green:#398b61;--yellow:#b68b2e;--gray:#596575;--accent:#8b9cff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#202d43 0,#10151f 55%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer}.wrap{max-width:760px;margin:auto;padding:24px 18px 40px}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2b3748;padding-bottom:16px;gap:12px}
+.brand{display:flex;align-items:center;gap:11px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#8294ff,#596de0);display:grid;place-items:center;font-weight:900;font-size:22px;box-shadow:0 8px 24px #5366d344}.brand h1{font-size:20px;margin:0;letter-spacing:.3px}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.iconbtn{border:1px solid var(--line);background:#1b2635;color:var(--text);border-radius:10px;padding:9px 12px;font-size:13px}
+.intro{text-align:center;margin:25px 0 20px}.intro h2{font-size:clamp(23px,4vw,30px);margin:0 0 7px}.intro p{margin:0;color:var(--muted);font-size:14px}
+.modes{display:flex;justify-content:center;gap:9px;margin:20px 0}.mode{min-width:92px;border:1px solid var(--line);background:#1a2534;color:#dce4ef;border-radius:11px;padding:10px 16px;font-weight:750;transition:.15s}.mode.active{background:#303c66;border-color:#8294ff;color:#fff;box-shadow:0 0 0 2px #8294ff20}
+.stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 auto 22px}.stat{background:#192331;border:1px solid #2b394c;border-radius:10px;padding:9px 15px;min-width:105px;text-align:center}.stat small{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}.stat b{font-size:15px}
+.board{display:grid;gap:8px;justify-content:center;margin:0 auto 14px}.guess-row{display:flex;gap:6px;justify-content:center}.tile{width:clamp(37px,8vw,52px);height:clamp(39px,8.5vw,55px);border:2px solid #3a485c;border-radius:7px;display:grid;place-items:center;font-size:clamp(17px,4vw,23px);font-weight:800;text-transform:uppercase;transition:transform .12s,background .2s}.tile.filled{border-color:#8294aa}.tile.correct{background:var(--green);border-color:var(--green)}.tile.present{background:var(--yellow);border-color:var(--yellow)}.tile.absent{background:var(--gray);border-color:var(--gray)}.word-gap{width:clamp(10px,2vw,17px);flex:none}
+.message{height:28px;text-align:center;color:#cbd5e1;font-size:13px;margin:9px 0 12px}.message.error{color:#ff9b9b}.message.success{color:#8ce0ad}
+.keyboard{display:grid;gap:7px;max-width:570px;margin:0 auto}.key-row{display:flex;justify-content:center;gap:5px}.key{height:48px;min-width:clamp(25px,7vw,43px);padding:0 7px;border:0;border-radius:7px;background:#344256;color:#fff;font-size:14px;font-weight:750}.key.wide{min-width:65px;font-size:11px}.key.correct{background:var(--green)}.key.present{background:var(--yellow)}.key.absent{background:#394351;color:#c0c7d0}
+.help{margin:25px auto 0;max-width:550px;background:#192331;border:1px solid #2b394c;border-radius:13px;padding:15px 17px}.help h3{font-size:13px;margin:0 0 10px}.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px}.legend span{display:flex;align-items:center;gap:6px}.swatch{width:13px;height:13px;border-radius:3px}.help p{font-size:12px;color:var(--muted);line-height:1.6;margin:12px 0 0}
+.result{display:none;margin:18px auto 0;max-width:550px;background:#1c2938;border:1px solid #43516a;border-radius:14px;padding:18px;text-align:center}.result.show{display:block}.result h3{margin:0 0 7px;font-size:20px}.result p{color:var(--muted);margin:0 0 14px;font-size:14px}.primary{background:#788bfa;color:#101629;border:0;border-radius:10px;padding:11px 17px;font-weight:800}.footer{text-align:center;color:#748297;font-size:11px;margin-top:25px}
+.modal{display:none;position:fixed;inset:0;background:#0009;z-index:5;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.modal-card{max-width:430px;width:100%;background:#1b2635;border:1px solid #45536a;border-radius:16px;padding:22px}.modal-card h3{margin:0 0 12px}.modal-card p,.modal-card li{font-size:13px;line-height:1.65;color:#c0cad8}.modal-card button{margin-top:8px}
+@media(max-width:420px){.wrap{padding:17px 10px 30px}.brand h1{font-size:17px}.mode{min-width:0;padding:9px 14px}.key{height:44px}.key.wide{min-width:53px}.stats{gap:6px}.stat{min-width:90px;padding:8px 10px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="top">
+ <div class="brand"><div class="logo">Đ</div><div><h1>ĐOÁN CHỮ</h1><p>Wordle phiên bản tiếng Việt</p></div></div>
+ <button class="iconbtn" id="helpBtn" aria-label="Hướng dẫn">? Hướng dẫn</button>
+</header>
+<section class="intro"><h2>Đoán cụm từ bí mật</h2><p>Tìm cụm từ gồm hai từ trong tối đa 6 lần thử.</p></section>
+<nav class="modes" aria-label="Chọn độ dài">
+ <button class="mode active" data-length="4">4 chữ</button>
+ <button class="mode" data-length="5">5 chữ</button>
+ <button class="mode" data-length="6">6 chữ</button>
+</nav>
+<section class="stats">
+ <div class="stat"><small>LƯỢT ĐOÁN</small><b id="turn">0 / 6</b></div>
+ <div class="stat"><small>ĐỘ DÀI</small><b id="length">4 chữ</b></div>
+ <div class="stat"><small>CHUỖI THẮNG</small><b id="streak">0 🔥</b></div>
+</section>
+<div id="board" class="board" aria-label="Bảng đoán chữ"></div>
+<div id="message" class="message" aria-live="polite">Nhập chữ cái bằng bàn phím hoặc bấm phím bên dưới.</div>
+<div id="keyboard" class="keyboard" aria-label="Bàn phím ảo"></div>
+<section class="result" id="result" aria-live="polite">
+ <h3 id="resultTitle">Bạn đã thắng!</h3><p id="resultText"></p>
+ <button class="primary" id="nextBtn">Chơi ván mới ↻</button>
+</section>
+<section class="help">
+ <h3>Ý NGHĨA MÀU SẮC</h3>
+ <div class="legend">
+  <span><i class="swatch" style="background:var(--green)"></i> Đúng chữ, đúng vị trí</span>
+  <span><i class="swatch" style="background:var(--yellow)"></i> Đúng chữ, sai vị trí</span>
+  <span><i class="swatch" style="background:var(--gray)"></i> Không có trong đáp án</span>
+ </div>
+ <p>Mỗi ô là một chữ cái. Khoảng cách giữa hai từ được giữ cố định theo đáp án — bạn không cần gõ dấu cách hay dấu tiếng Việt.</p>
+</section>
+<div class="footer">ĐOÁN CHỮ · THỬ THÁCH TỪ VỰNG TIẾNG VIỆT</div>
+</main>
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <div class="modal-card"><h3 id="modalTitle">Cách chơi</h3>
+ <ol><li>Chọn chế độ 4, 5 hoặc 6 chữ.</li><li>Đoán cụm từ tiếng Việt gồm đúng hai từ trong 6 lượt.</li><li>Nhập chữ cái không dấu; không cần nhập dấu cách.</li><li>Màu xanh là đúng vị trí, vàng là có chữ nhưng sai vị trí, xám là không có.</li></ol>
+ <button class="primary" id="closeHelp">Đã hiểu</button></div>
+</div>
+<script>
+(()=>{
+const BANK={
+ 4:['cà phê','bò né','xe ôm','ba lô','ca sĩ','cô bé','da gà','cá rô','mì ý','ô mai'],
+ 5:['trà sữa','xe máy','hoa quả','sân ga','cá mập','bút chì','nhà ga','cà ri','áo dài','cá khô'],
+ 6:['bánh mì','đồng hồ','cây bút','tủ lạnh','sách vở','bàn ghế','quả cam','nước đá','đèn pin','cá cảnh']
+};
+const $=id=>document.getElementById(id);
+const strip=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+const KEYROWS=['qwertyuiop','asdfghjkl','zxcvbnm'];
+let length=4,answer='',target='',split=0,guesses=[],current='',finished=false,keyColors={},streak=0;
+const board=$('board');
+function chooseAnswer(){
+ const candidates=BANK[length].filter(w=>strip(w).replace(/\s/g,'').length===length);
+ answer=candidates[Math.floor(Math.random()*candidates.length)];
+ const words=answer.split(' ');
+ target=strip(answer).replace(/\s/g,'');split=strip(words[0]).length;
+}
+function newGame(){
+ guesses=[];current='';finished=false;keyColors={};chooseAnswer();
+ $('turn').textContent='0 / 6';$('length').textContent=length+' chữ';
+ $('message').textContent='Nhập chữ cái bằng bàn phím hoặc bấm phím bên dưới.';
+ $('message').className='message';$('result').classList.remove('show');
+ document.querySelectorAll('[data-length]').forEach(b=>b.classList.toggle('active',+b.dataset.length===length));
+ draw();
+}
+function draw(){
+ board.innerHTML='';
+ for(let r=0;r<6;r++){
+  const row=document.createElement('div');row.className='guess-row';
+  for(let c=0;c<length;c++){
+   if(c===split){const gap=document.createElement('span');gap.className='word-gap';row.append(gap);}
+   const tile=document.createElement('div');tile.className='tile';
+   let ch='',color='';
+   if(guesses[r]){ch=guesses[r].chars[c];color=guesses[r].colors[c];}
+   else if(r===guesses.length)ch=current[c]||'';
+   tile.textContent=ch||'';
+   if(color)tile.classList.add(color);else if(ch)tile.classList.add('filled');
+   row.append(tile);
+  }
+  board.append(row);
+ }
+ drawKeyboard();
+}
+function drawKeyboard(){
+ const keyboard=$('keyboard');keyboard.innerHTML='';
+ KEYROWS.forEach((str,index)=>{
+  const row=document.createElement('div');row.className='key-row';
+  if(index===2)addKey(row,'enter','NHẬP',true);
+  [...str].forEach(ch=>addKey(row,ch,ch.toUpperCase(),false));
+  if(index===2)addKey(row,'backspace','⌫',true);
+  keyboard.append(row);
+ });
+}
+function addKey(row,value,label,wide){
+ const b=document.createElement('button');b.className='key'+(wide?' wide':'');b.textContent=label;
+ if(keyColors[value])b.classList.add(keyColors[value]);
+ b.addEventListener('click',()=>press(value));row.append(b);
+}
+function press(key){
+ if(finished)return;
+ if(key==='enter'){submit();return;}
+ if(key==='backspace'){current=current.slice(0,-1);draw();return;}
+ if(/^[a-z]$/.test(key)&&current.length<length){current+=key;draw();}
+}
+function score(guess){
+ const ans=target.split(''),g=guess.split(''),colors=Array(length).fill('absent'),counts={};
+ for(let i=0;i<length;i++){
+  if(g[i]===ans[i]){colors[i]='correct';ans[i]=null;}
+  else if(ans[i]!==null)counts[ans[i]]=(counts[ans[i]]||0)+1;
+ }
+ for(let i=0;i<length;i++){
+  if(colors[i]==='correct')continue;
+  if(counts[g[i]]>0){colors[i]='present';counts[g[i]]--;}
+ }
+ return colors;
+}
+function submit(){
+ if(current.length!==length){say('Bạn cần nhập đủ '+length+' chữ cái nhé.','error');return;}
+ const colors=score(current),chars=current.split('');
+ guesses.push({chars,colors});
+ chars.forEach((ch,i)=>{
+  const old=keyColors[ch],next=colors[i];
+  if(old==='correct')return;
+  if(old==='present'&&next==='absent')return;
+  keyColors[ch]=next;
+ });
+ const won=current===target;current='';
+ $('turn').textContent=guesses.length+' / 6';draw();
+ if(won){streak++;finish(true);}
+ else if(guesses.length===6){streak=0;finish(false);}
+ else say('Chưa đúng! Hãy thử một cụm từ khác.','');
+ $('streak').textContent=streak+' 🔥';
+}
+function say(text,kind){$('message').textContent=text;$('message').className='message '+kind;}
+function finish(won){
+ finished=true;
+ $('resultTitle').textContent=won?'🎉 Chính xác! Bạn đã chiến thắng.':'Hết lượt mất rồi!';
+ $('resultText').textContent=won?'Bạn tìm ra đáp án trong '+guesses.length+'/6 lượt. Đáp án: '+answer+'.':'Đáp án đúng là: '+answer+'. Thử lại một ván nhé!';
+ $('result').classList.add('show');
+ say(won?'Tuyệt vời! Bạn đã giải được câu đố.':'Đừng nản chí, thử lại nhé!','success');
+}
+document.querySelectorAll('[data-length]').forEach(b=>b.addEventListener('click',()=>{length=+b.dataset.length;newGame();}));
+$('nextBtn').addEventListener('click',newGame);
+$('helpBtn').addEventListener('click',()=>$('helpModal').classList.add('show'));
+$('closeHelp').addEventListener('click',()=>$('helpModal').classList.remove('show'));
+$('helpModal').addEventListener('click',e=>{if(e.target===$('helpModal'))$('helpModal').classList.remove('show');});
+document.addEventListener('keydown',e=>{
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ if(e.key==='Enter')press('enter');
+ else if(e.key==='Backspace')press('backspace');
+ else if(/^[a-zA-Z]$/.test(e.key))press(e.key.toLowerCase());
+});
+newGame();
+})();
+</script>
+</body></html>
